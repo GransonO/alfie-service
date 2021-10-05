@@ -66,49 +66,4 @@ urlpatterns = [
          ProfilesAllView.as_view(),
          name="all profiles"
          ),
-
-    path('allergies/',
-         Allergies.as_view(),
-         name="Allergies"
-         ),
-
-    path('allergies/<patient_id>',
-         AllergiesSpecificView.as_view(),
-         name="Specific Allergies"
-         ),
-
-    path('recurrent/',
-         RecurrentIssuesView.as_view(),
-         name="RecurrentIssues View"
-         ),
-
-    path('recurrent/<patient_id>',
-         RecurrentIssuesSpecificView.as_view(),
-         name="Specific Recurrent Issues"
-         ),
-
-    path('dependants/',
-         DependantsView.as_view(),
-         name="Dependants View"
-         ),
-
-    path('dependants/<patient_id>',
-         DependantSpecificView.as_view(),
-         name="Specific Dependants"
-         ),
-
-    path('notifiers/',
-         NotifierView.as_view(),
-         name="Notifier View"
-         ),
-
-    path('notifiers/<patient_id>',
-         NotifierSpecificView.as_view(),
-         name="Specific Notifiers"
-         ),
-
-    path('relatives/search/',
-         RelativeSearch.as_view(),
-         name="Relative Search"
-         )
 ]

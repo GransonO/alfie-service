@@ -44,10 +44,8 @@ class Register(views.APIView):
                         activation_code=random_code,
                         user_email=(passed_data["email"]).lower()
                     )
-                    if passed_data["isMaisha"]:
-                        value = Register.send_maisha_message((passed_data["email"]).lower(), passed_data["firstname"], random_code)
-                    else:
-                        value = Register.send_welcome_message((passed_data["email"]).lower(), passed_data["firstname"], random_code)
+
+                    value = Register.send_welcome_message((passed_data["email"]).lower(), passed_data["firstname"], random_code)
                     if value == 200:
                         activation_data.save()
                     else:
