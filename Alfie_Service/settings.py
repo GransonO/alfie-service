@@ -62,6 +62,15 @@ INSTALLED_APPS = [
     'background_task',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'hello_alfie_pod_service.apps.authentication.CustomAuth.SafeJWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -70,6 +79,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # third party apps
+    'corsheaders.middleware.CorsMiddleware',
+    'bugsnag.django.middleware.BugsnagMiddleware',
+
+    # recomended for serving static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'Alfie_Service.urls'
@@ -92,7 +108,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Alfie_Service.wsgi.application'
-
+CORS_ORIGIN_ALLOW_ALL = True
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "hello-alfie.herokuapp.com", "*"]
+AUTH_USER_MODEL = 'authentication.User'
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+]
+AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend',
+    )
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
