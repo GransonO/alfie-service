@@ -111,7 +111,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Alfie_Service.wsgi.application'
 CORS_ORIGIN_ALLOW_ALL = True
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "hello-alfie.herokuapp.com", "*"]
+ALLOWED_HOSTS = ["127.0.0.1", "hello-alfie.herokuapp.com", "helloalfie-env.eba-aiw69bkt.us-west-2.elasticbeanstalk.com"]
 AUTH_USER_MODEL = 'authentication.User'
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
