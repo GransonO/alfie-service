@@ -8,9 +8,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.generics import ListAPIView
 
 from django.contrib.postgres.search import SearchQuery, SearchVector, SearchRank
-from hello_alfie_pod_service.apps.notifiers.FCM.fcm_requester import FcmRequester
-from hello_alfie_pod_service.apps.profiles.models import PatientProfile
-from hello_alfie_pod_service.apps.subscriptions.models import Subscription
+from ..notifiers.FCM.fcm_requester import FcmRequester
+from ..profiles.models import PatientProfile
+from ..subscriptions.models import Subscription
 from .models import BlogsDB, Comments
 from .serializers import BlogSerializer, CommentsSerializer
 

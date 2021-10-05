@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.generics import ListAPIView
 
-from ..notifiers.FCM.fcm_requester import FcmCore
+from ..notifiers.FCM.fcm_requester import FcmRequester
 from .models import DoctorsProfiles, Speciality
 from .serializers import DoctorProfileSerializer, SpecialitySerializer
 from ..authentication.models import DoctorsActivation
@@ -146,7 +146,7 @@ class DoctorValidation(views.APIView):
                 message_body = "Hello {}, your account has been deactivated. " \
                                "Contact support for more information".format(doctor_profile["fullname"])
 
-            FcmCore.doctor_validation_notice(
+            FcmRequester.doctor_validation_notice(
                 all_tokens=[doctor_profile["fcm"]],
                 message=message_body,
             )

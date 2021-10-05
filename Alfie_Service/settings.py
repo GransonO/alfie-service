@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     'Alfie_Service.apps.call_module',
     'Alfie_Service.apps.subscriptions',
     'Alfie_Service.apps.support',
+    'Alfie_Service.apps.notifiers',
+    'Alfie_Service.apps.payments.mpesa',
 
     # third party apps
     'corsheaders',
@@ -64,7 +66,7 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'hello_alfie_pod_service.apps.authentication.CustomAuth.SafeJWTAuthentication',
+        'Alfie_Service.apps.authentication.CustomAuth.SafeJWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
