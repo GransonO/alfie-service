@@ -5,10 +5,7 @@ from .doctors_views import (
      SearchDoctor, SpecialityView, SpecialitySearch, DoctorValidation
      )
 from .patients_views import (
-     Profiles,  ProfilesAllView, Allergies, RecurrentIssuesView,
-     ProfileSpecificView, AllergiesSpecificView, RecurrentIssuesSpecificView,
-     RelativeSearch, DependantsView, DependantSpecificView, NotifierSpecificView,
-     NotifierView
+     Profiles,  ProfilesAllView, ProfileSpecificView,
      )
 
 urlpatterns = [
