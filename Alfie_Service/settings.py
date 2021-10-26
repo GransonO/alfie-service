@@ -22,6 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-)n)e%_o-4r1^#gg_t)@5615kdfmak76-%*t30p^e57x9cd)ux9'
+REFRESH_TOKEN_SECRET = 'j436uwc5v2q^(p%s8xco0+$tzx)$2h_7*+o)hg6wvs4*2l*6x6c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -111,7 +112,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Alfie_Service.wsgi.application'
 CORS_ORIGIN_ALLOW_ALL = True
-ALLOWED_HOSTS = ["127.0.0.1", "hello-alfie.herokuapp.com", "helloalfie-env.eba-aiw69bkt.us-west-2.elasticbeanstalk.com"]
+ALLOWED_HOSTS = ["127.0.0.1", "hello-alfie.herokuapp.com", "hello-alfie-env.eba-ce3zjbrc.us-west-2.elasticbeanstalk.com"]
 AUTH_USER_MODEL = 'authentication.User'
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
