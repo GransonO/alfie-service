@@ -137,6 +137,7 @@ class SpecificSub(views.APIView):
             )
             value = []
             for item in list(subscriptions):
+                print("Exception ------------------------- {}".format(item.doctor_id))
                 doctor = DoctorsProfiles.objects.get(user_id=item.doctor_id)
                 value.append({
                     "doctor": DoctorProfileSerializer(doctor).data,
@@ -154,6 +155,7 @@ class SpecificSub(views.APIView):
                 }, status.HTTP_200_OK
             )
         except Exception as E:
+            print("Exception ------------------------- {}".format(E))
             # bugsnag.notify(
             #     Exception('Subscribed Post: {}'.format(E))
             # )
