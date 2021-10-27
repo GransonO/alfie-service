@@ -90,27 +90,38 @@ class Subscribe(views.APIView):
     @staticmethod
     def get(request):
         passed_data = request.data
-        subscriptions = Subscription.objects.filter(
-            patient_id=passed_data["patient_id"],
-        )
-        value = []
-        for item in list(subscriptions):
-            doctor = DoctorsProfiles.objects.get(user_id=item.doctor_id)
-            value.append({
-                "doctor": DoctorProfileSerializer(doctor).data,
-                "subscriptions": {
-                    "blogs": item.subscribed_blogs,
-                    "podcasts": item.subscribed_pods,
-                }
-            })
+        try:
+            subscriptions = Subscription.objects.filter(
+                patient_id=passed_data["patient_id"],
+            )
+            value = []
+            for item in list(subscriptions):
+                doctor = DoctorsProfiles.objects.get(user_id=item.doctor_id)
+                value.append({
+                    "doctor": DoctorProfileSerializer(doctor).data,
+                    "subscriptions": {
+                        "blogs": item.subscribed_blogs,
+                        "podcasts": item.subscribed_pods,
+                    }
+                })
 
-        return Response(
-            {
-                "success": True,
-                "body": value,
-                "message": "Update successfully"
-            }, status.HTTP_200_OK
-        )
+            return Response(
+                {
+                    "success": True,
+                    "body": value,
+                    "message": "Update successfully"
+                }, status.HTTP_200_OK
+            )
+        except Exception as E:
+            bugsnag.notify(
+                Exception('Subscribed Post: {}'.format(E))
+            )
+            return Response(
+                {
+                    "success": False,
+                    "message": "fetching failed"
+                }, status.HTTP_200_OK
+            )
 
 
 class SpecificSub(views.APIView):
@@ -120,24 +131,35 @@ class SpecificSub(views.APIView):
     @staticmethod
     def post(request):
         passed_data = request.data
-        subscriptions = Subscription.objects.filter(
-            patient_id=passed_data["patient_id"],
-        )
-        value = []
-        for item in list(subscriptions):
-            doctor = DoctorsProfiles.objects.get(user_id=item.doctor_id)
-            value.append({
-                "doctor": DoctorProfileSerializer(doctor).data,
-                "subscriptions": {
-                    "blogs": item.subscribed_blogs,
-                    "podcasts": item.subscribed_pods,
-                }
-            })
+        try:
+            subscriptions = Subscription.objects.filter(
+                patient_id=passed_data["patient_id"],
+            )
+            value = []
+            for item in list(subscriptions):
+                doctor = DoctorsProfiles.objects.get(user_id=item.doctor_id)
+                value.append({
+                    "doctor": DoctorProfileSerializer(doctor).data,
+                    "subscriptions": {
+                        "blogs": item.subscribed_blogs,
+                        "podcasts": item.subscribed_pods,
+                    }
+                })
 
-        return Response(
-            {
-                "success": True,
-                "body": value,
-                "message": "Collected successfully"
-            }, status.HTTP_200_OK
-        )
+            return Response(
+                {
+                    "success": True,
+                    "body": value,
+                    "message": "Collected successfully"
+                }, status.HTTP_200_OK
+            )
+        except Exception as E:
+            # bugsnag.notify(
+            #     Exception('Subscribed Post: {}'.format(E))
+            # )
+            return Response(
+                {
+                    "success": False,
+                    "message": "fetching failed"
+                }, status.HTTP_200_OK
+            )

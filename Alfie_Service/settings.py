@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     'Alfie_Service.apps.subscriptions',
     'Alfie_Service.apps.support',
     'Alfie_Service.apps.notifiers',
-    'Alfie_Service.apps.payments.mpesa',
 
     # third party apps
     'corsheaders',
@@ -165,6 +164,14 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
+
+# Configure service for static files within the django app
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+BUGSNAG = {
+    'api_key': '40400b3f45e41e2003dc1466dd81d8a8',
+    'project_root': PROJECT_ROOT
+}
 
 STATIC_URL = '/static/'
 

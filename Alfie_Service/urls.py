@@ -23,7 +23,6 @@ from .apps.profiles import urls as profilesUrls
 from .apps.blogs import urls as blogsUrls
 from .apps.call_module import urls as callUrls
 from .apps.subscriptions import urls as subscribeUrls
-from .apps.payments.mpesa import urls as mpesaUrls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -58,8 +57,4 @@ urlpatterns = [
         include(subscribeUrls),
         name="=Subscribe"),
 
-    path(
-        'mpesa/',
-        include(mpesaUrls),
-        name="Mpesa Service"),
 ]
