@@ -28,8 +28,6 @@ REFRESH_TOKEN_SECRET = 'j436uwc5v2q^(p%s8xco0+$tzx)$2h_7*+o)hg6wvs4*2l*6x6c'
 DEBUG = True
 # DEBUG = False
 
-ALLOWED_HOSTS = []
-
 env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
@@ -54,14 +52,11 @@ INSTALLED_APPS = [
     'Alfie_Service.apps.profiles',
     'Alfie_Service.apps.call_module',
     'Alfie_Service.apps.subscriptions',
-    'Alfie_Service.apps.support',
-    'Alfie_Service.apps.notifiers',
 
     # third party apps
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
-    'background_task',
 ]
 
 REST_FRAMEWORK = {
@@ -86,7 +81,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'bugsnag.django.middleware.BugsnagMiddleware',
 
-    # recomended for serving static files
+    # recommended for serving static files
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
