@@ -481,7 +481,7 @@ class PatientVerify(views.APIView):
                 return Response({
                     "status": "failed",
                     "code": 0,
-                    "message": "verification failed, wrong activation code passed"
+                    "message": "verification failed, wrong details passed"
                 }, status.HTTP_200_OK)
 
             else:

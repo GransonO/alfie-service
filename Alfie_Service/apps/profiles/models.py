@@ -54,8 +54,8 @@ class DoctorsDeactivation(models.Model):
 
     def __str__(self):
         """ String representation of db object """
-        return 'speciality_name : {} ,speciality_description: {}'.format(
-            self.speciality_name, self.speciality_description)
+        return 'deactivator_id : {} ,doctor_id: {}'.format(
+            self.deactivator_id, self.doctor_id)
 
 
 class Speciality(models.Model):
