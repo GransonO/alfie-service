@@ -38,21 +38,6 @@ class DoctorsProfiles(models.Model):
             self.email, self.fullname)
 
 
-class DoctorsDeactivation(models.Model):
-    """display reasons for doctors account deactivation"""
-    doctor_id = models.CharField(max_length=250, default='non')
-    deactivator_id = models.CharField(max_length=250, default='non')
-    reason = models.TextField(default="")
-
-    createdAt = models.DateTimeField(auto_now_add=True, null=True)
-    updatedAt = models.DateTimeField(auto_now=True, null=True)
-
-    def __str__(self):
-        """ String representation of db object """
-        return 'deactivator_id : {} ,doctor_id: {}'.format(
-            self.deactivator_id, self.doctor_id)
-
-
 class PatientProfile(models.Model):
     # Authentication details
     fullname = models.CharField(max_length=250, default='non')
