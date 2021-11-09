@@ -45,6 +45,7 @@ class PatientProfile(models.Model):
     activation_code = models.CharField(max_length=250, default='non')
     user_id = models.CharField(max_length=350, default='non', unique=True)
     is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
 
     # Personal details
     gender = models.CharField(max_length=250, null=True)

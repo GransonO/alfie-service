@@ -75,6 +75,7 @@ class Register(views.APIView):
                             }, status.HTTP_200_OK)
 
             else:
+
                 return Response({
                     "status": "failed",
                     "message": "Registration failed, user with email exists",

@@ -108,7 +108,10 @@ class DoctorValidation(views.APIView):
                 message_body = "Hello {}, your account has been deactivated. " \
                                "Contact support for more information".format(doctor_profile["fullname"])
 
-            DoctorValidation.send_activation_email(name=doctor_profile["fullname"], email=doctor_profile["email"], body=message_body)
+            DoctorValidation.send_activation_email(
+                name=doctor_profile["fullname"],
+                email=doctor_profile["email"],
+                body=message_body)
 
             return Response(
                 {
