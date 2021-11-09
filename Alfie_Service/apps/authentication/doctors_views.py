@@ -4,6 +4,7 @@ import datetime
 import jwt
 import random
 import os
+import uuid
 
 from dotenv import load_dotenv
 from mailjet_rest import Client
@@ -11,7 +12,7 @@ from mailjet_rest import Client
 from rest_framework import exceptions
 from django.conf import settings
 from django.contrib.auth import get_user_model, authenticate
-from rest_framework import views, status, generics
+from rest_framework import views, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
@@ -45,7 +46,7 @@ class Register(views.APIView):
                         user_email=(passed_data["email"]).lower()
                     )
 
-                    value = Register.send_welcome_message((passed_data["email"]).lower(), passed_data["firstname"])
+                    value = Register.send_welcome_message((passed_data["email"]).lower(), passed_data["firstname"], random_code)
                     if value == 200:
                         activation_data.save()
                     else:
@@ -107,7 +108,7 @@ class Register(views.APIView):
             return False
 
     @staticmethod
-    def send_welcome_message(email, name):
+    def send_welcome_message(email, name, code):
         load_dotenv()
         api_key = os.environ['MJ_API_KEY_PUBLIC']
         api_secret = os.environ['MJ_API_KEY_PRIVATE']
@@ -126,7 +127,7 @@ class Register(views.APIView):
                         }
                     ],
                     "Subject": 'Welcome {} to Hello Alfie'.format(name),
-                    "HTMLPart":  EmailTemplates.register_email(name)
+                    "HTMLPart":  EmailTemplates.register_email(name, code)
                 }
             ]
         }
@@ -190,15 +191,12 @@ class Login(views.APIView):
                         "message": "Could not authenticate user",
                         "code": 1
                     }
-
                     return response
 
                 profile = DoctorsProfiles.objects.filter(email=(passed_data["email"]).lower())
                 serialized_user = UserSerializer(user).data
                 serialized_profile = DoctorProfileSerializer(profile.first()).data
 
-                # Update Doctors FCM
-                profile.update(fcm=passed_data["fcm"])
                 access_token = generate_access_token(user)
                 refresh_token = generate_refresh_token(user)
 
@@ -207,7 +205,6 @@ class Login(views.APIView):
                 if profile[0].is_activated:
                     response.data = {
                         'access_token': access_token,
-                        'user': serialized_user,
                         'profile': serialized_profile,
                         "status": "success",
                         "isRegistered": profile.count() > 0,
@@ -219,10 +216,9 @@ class Login(views.APIView):
                 else:
                     response.data = {
                         'access_token': access_token,
-                        'user': serialized_user,
                         'profile': serialized_profile,
                         "status": "pending",
-                        "message": "Account not verified",
+                        "message": "Account not activated",
                         "code": 1
                     }
 
@@ -425,7 +421,6 @@ class DoctorVerify(views.APIView):
                 user_email=(passed_data["email"]).lower(),
                 activation_code=int(passed_data["activation_code"])
             )
-            print("------------------------Activate---------------: {}".format(activate))
             if activate.count() < 1:
                 return Response({
                     "status": "failed",
@@ -442,10 +437,24 @@ class DoctorVerify(views.APIView):
                 user.email = (passed_data["email"]).lower()
 
                 user.save()
+
+                user_reg_id = uuid.uuid1()
+                serializer = DoctorProfileSerializer(data=passed_data, partial=True)
+                serializer.is_valid(raise_exception=True)
+                serializer.save(
+                    user_id=user_reg_id,
+                    is_active=False,
+                    fullname="{} {}".format(
+                        passed_data["firstname"], passed_data["lastname"]))
+
+                DoctorVerify.send_verification_email(
+                    email=passed_username,
+                    name="{} {}".format(passed_data["firstname"], passed_data["lastname"])
+                )
                 return Response({
                     "status": "success",
                     "code": 0,
-                    "message": "User account activated"
+                    "message": "User account created"
                 }, status.HTTP_200_OK)
 
         except Exception as e:
@@ -453,13 +462,13 @@ class DoctorVerify(views.APIView):
             return Response({
                 "status": "failed",
                 "code": 0,
-                "message": "User account NOT activated"
+                "message": "User account NOT created"
             }, status.HTTP_200_OK)
 
     @staticmethod
-    def send_verification_email(name, code, password, email):
+    def send_verification_email(name, email):
         subject = 'Account verification'
-        message = EmailTemplates.verify_email(name, code, password)
+        message = EmailTemplates.verify_email(name)
         load_dotenv()
         api_key = os.environ['MJ_API_KEY_PUBLIC']
         api_secret = os.environ['MJ_API_KEY_PRIVATE']
@@ -489,7 +498,7 @@ class DoctorVerify(views.APIView):
 class EmailTemplates:
 
     @staticmethod
-    def register_email(name):
+    def verify_email(name):
         return """
         <!DOCTYPE html>
             <html lang="en">
@@ -519,7 +528,7 @@ class EmailTemplates:
         """.format(name)
 
     @staticmethod
-    def verify_email(name, code, password):
+    def register_email(name, code):
         return """
         <!DOCTYPE html>
             <html lang="en">
@@ -539,16 +548,15 @@ class EmailTemplates:
                             <br/>
                             <p style="font-size: 14px; line-height: 1.2; mso-line-height-alt: 17px; margin: 0; font-family: Verdana, sans-serif;"> We are glad to have you on board. Thank you for joining us on this journey in making the world a better place <br/> through sharing, building and nurturing a healthy space for resolution of mental issues</p>
                             <br/>
-                            <p style="font-size: 14px; line-height: 1.2; mso-line-height-alt: 17px; margin: 0; font-family: Verdana, sans-serif;"> Your registration has been verified</p>
                             <br/>
-                            <p style="font-size: 14px; line-height: 1.2; mso-line-height-alt: 17px; margin: 0; font-family: Verdana, sans-serif;"> Your activation code is <strong>{}</strong>. <br/> Your one time password is <strong>{}</strong> <br/>Please update once logged in <br/><br/> Thank you </p>
+                            <p style="font-size: 14px; line-height: 1.2; mso-line-height-alt: 17px; margin: 0; font-family: Verdana, sans-serif;"> Your activation code is <strong>{}</strong>. <br/> <br/><br/> Thank you </p>
                             <br/>
                             <br/>
                         </div>
                     </div>
                 </body>
             </html>
-        """.format(name, code, password)
+        """.format(name, code)
 
     @staticmethod
     def reset_email(code):

@@ -2,7 +2,7 @@ from django.urls import path
 from .doctors_views import (
      Profiles as DocProfiles,  ProfilesAllView as DocProfilesAllView,
      ProfileSpecificView as DocProfileSpecificView, CodeVerify,
-     SearchDoctor, SpecialityView, SpecialitySearch, DoctorValidation
+     SearchDoctor, DoctorValidation
      )
 from .patients_views import (
      Profiles,  ProfilesAllView, ProfileSpecificView,
@@ -34,16 +34,6 @@ urlpatterns = [
     path('doc/search/',
          SearchDoctor.as_view(),
          name="Search Doctor"
-         ),
-
-    path('doc/speciality/',
-         SpecialityView.as_view(),
-         name="Doctor SpecialityView"
-         ),
-
-    path('doc/speciality/search/',
-         SpecialitySearch.as_view(),
-         name="Doctor Speciality Search"
          ),
 
     path('doc/activation/',

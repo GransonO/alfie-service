@@ -1,15 +1,16 @@
 from django.contrib.postgres.search import SearchQuery, SearchVector, SearchRank
-import uuid
+from dotenv import load_dotenv
+from mailjet_rest import Client
 
 import bugsnag
+import os
 from rest_framework import views,  status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.generics import ListAPIView
 
-from ..notifiers.FCM.fcm_requester import FcmRequester
-from .models import DoctorsProfiles, Speciality
-from .serializers import DoctorProfileSerializer, SpecialitySerializer
+from .models import DoctorsProfiles
+from .serializers import DoctorProfileSerializer
 from ..authentication.models import DoctorsActivation
 
 
@@ -20,51 +21,12 @@ class Profiles(views.APIView):
     permission_classes = [AllowAny]
 
     @staticmethod
-    def post(request):
-        """ Add Profiles to DB """
-        passed_data = request.data
-        try:
-            activate = DoctorsActivation.objects.filter(
-                user_email=passed_data["email"],
-                activation_code=int(passed_data["activation_code"])
-            )
-            if activate.count() < 1:
-                return Response({
-                    "status": "Failed",
-                    "code": 0,
-                    "message": "Update failed, wrong activation code passed"
-                }, status.HTTP_200_OK)
-            else:
-                # Save data to DB
-                user_reg_id = uuid.uuid1()
-                serializer = DoctorProfileSerializer(data=passed_data, partial=True)
-                serializer.is_valid(raise_exception=True)
-                serializer.save(user_id=user_reg_id, is_active=True)
-
-                return Response({
-                    "status": "success",
-                    "user_id": user_reg_id,
-                    "code": 1
-                    }, status.HTTP_200_OK)
-
-        except Exception as E:
-            bugsnag.notify(
-                Exception('Profile Post: {}'.format(E))
-            )
-            return Response({
-                "error": "{}".format(E),
-                "status": "Profile creation failed",
-                "code": 0
-                }, status.HTTP_200_OK)
-
-    @staticmethod
     def put(request):
         passed_data = request.data
         # Check This later
         try:
             participant = DoctorsProfiles.objects.get(user_id=passed_data["user_id"])
-            serializer = DoctorProfileSerializer(
-                participant, data=passed_data, partial=True)
+            serializer = DoctorProfileSerializer(participant, data=passed_data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
@@ -139,17 +101,14 @@ class DoctorValidation(views.APIView):
 
             doctor_profile = DoctorProfileSerializer(doctor).data
 
-            if passed_data["status"] == "1":
+            if passed_data["is_activated"]:
                 message_body = "Hello {}, your account has been verified. " \
-                               "Login to receive calls. Thank you for registering with us".format(doctor_profile["fullname"])
+                               "Thank you for working with us".format(doctor_profile["fullname"])
             else:
                 message_body = "Hello {}, your account has been deactivated. " \
                                "Contact support for more information".format(doctor_profile["fullname"])
 
-            FcmRequester.doctor_validation_notice(
-                all_tokens=[doctor_profile["fcm"]],
-                message=message_body,
-            )
+            DoctorValidation.send_activation_email(name=doctor_profile["fullname"], email=doctor_profile["email"], body=message_body)
 
             return Response(
                 {
@@ -166,6 +125,35 @@ class DoctorValidation(views.APIView):
                 "status": "failed",
                 "code": 0
             }, status.HTTP_200_OK)
+
+    @staticmethod
+    def send_activation_email(name, email, body):
+        subject = 'Account Activation Status'
+        message = EmailTemplates.activation_email(name, body)
+        load_dotenv()
+        api_key = os.environ['MJ_API_KEY_PUBLIC']
+        api_secret = os.environ['MJ_API_KEY_PRIVATE']
+        mailjet = Client(auth=(api_key, api_secret), version='v3.1')
+        data = {
+            'Messages': [
+                {
+                    "From": {
+                        "Email": "helloalfie@epitomesoftware.live",
+                        "Name": "Hello Alfie"
+                    },
+                    "To": [
+                        {
+                            "Email": email,
+                            "Name": ""
+                        }
+                    ],
+                    "Subject": subject,
+                    "HTMLPart": message
+                }
+            ]
+        }
+        result = mailjet.send.create(data=data)
+        return result.status_code
 
 
 class ProfilesAllView(ListAPIView):
@@ -205,77 +193,32 @@ class SearchDoctor(views.APIView):
         return Response(list(doctor.values()), status.HTTP_200_OK)
 
 
-class SpecialityView(views.APIView):
-    """Allergies"""
-    permission_classes = [AllowAny]
+class EmailTemplates:
 
     @staticmethod
-    def post(request):
-        """"Add new allergy"""
-        passed_data = request.data
-        try:
-            # Save data to DB
-            speciality_id = uuid.uuid1()
-            serializer = SpecialitySerializer(data=passed_data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save(entry_id=speciality_id, is_active=True)
-
-            return Response({
-                "status": "success",
-                "code": 1
-                }, status.HTTP_200_OK)
-
-        except Exception as E:
-            bugsnag.notify(
-                Exception('Speciality Post: {}'.format(E))
-            )
-            return Response({
-                "error": "{}".format(E),
-                "status": "failed",
-                "message": "Speciality creation failed",
-                "code": 0
-                }, status.HTTP_200_OK)
-
-    @staticmethod
-    def put(request):
-        # Remove from Allergies (Status inactive)
-        passed_data = request.data
-        try:
-            participant = Speciality.objects.get(entry_id=passed_data["entry_id"])
-            serializer = SpecialitySerializer(
-                participant, data=passed_data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-
-            return Response({
-                    "status": "success",
-                    "code": 1
-                    }, status.HTTP_200_OK)
-
-        except Exception as E:
-            print("Error: {}".format(E))
-            bugsnag.notify(
-                Exception('Profile Put Speciality: {}'.format(E))
-            )
-            return Response({
-                "error": "{}".format(E),
-                "status": "failed",
-                "code": 0
-                }, status.HTTP_200_OK)
-
-
-class SpecialitySearch(views.APIView):
-    """Search for doctor using keys"""
-    permission_classes = [AllowAny]
-
-    @staticmethod
-    def post(request):
-        passed_data = request.data
-        vector = SearchVector('speciality_name', 'speciality_description',)
-        query = SearchQuery(passed_data["query"])
-        doctor = Speciality.objects.annotate(
-            rank=SearchRank(vector, query)
-        ).filter(
-            rank__gte=0.001
-        ).order_by('-rank')
-        return Response(list(doctor.values()), status.HTTP_200_OK)
+    def activation_email(name, body):
+        return """
+        <!DOCTYPE html>
+            <html lang="en">
+                <body style="text-align:center;">
+                    <br/>
+                    <img alt="Image" border="0" src="https://res.cloudinary.com/dolwj4vkq/image/upload/v1621418365/HelloAlfie/ic_launcher.png" title="Image" width="300"/>
+                    <br/>
+                    <br/>
+                    <div style="color:#ff7463;font-family:'Montserrat', 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif;line-height:1.2; padding:0;">
+                        <div style="font-size: 12px; line-height: 1.2; font-family: 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif; color: #ff7463; mso-line-height-alt: 14px;">
+                            <p style="font-size: 18px; line-height: 1.2; text-align: center; mso-line-height-alt: 22px; margin: 0;"><span style="font-size: 18px;"><strong><span style="font-size: 18px;"> Hello {}</span></strong></span></p>
+                        </div>
+                    </div>
+                    <div style="color:#555555;font-family: 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Geneva, Verdana, sans-serif;line-height:1.2; padding:10px;">
+                        <div style="font-family: 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Geneva, Verdana, sans-serif; font-size: 12px; line-height: 1.2; color: #555555; mso-line-height-alt: 14px;">
+                            <p style="font-size: 17px; line-height: 1.2; mso-line-height-alt: 17px; margin: 0; font-family: Verdana, sans-serif;"> Your path to mental wellness administration starts here.</p>
+                            <br/>
+                            <p style="font-size: 14px; line-height: 1.2; mso-line-height-alt: 17px; margin: 0; font-family: Verdana, sans-serif;"> {} </p>
+                            <br/>
+                            <br/>
+                        </div>
+                    </div>
+                </body>
+            </html>
+        """.format(name, body)
