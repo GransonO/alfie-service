@@ -105,7 +105,7 @@ class FcmRequester:
         url = 'https://fcm.googleapis.com/fcm/send'
 
         load_dotenv()
-        fcm_key = os.environ['FCM_KEY']
+        fcm_key = os.environ['ALFIE_FCM_KEY']
 
         my_headers = {
             "Authorization": "key={}".format(fcm_key),

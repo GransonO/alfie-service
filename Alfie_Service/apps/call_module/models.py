@@ -7,7 +7,7 @@ class CallsOrder(models.Model):
     doctor_id = models.CharField(max_length=350, default='')
     patient_id = models.CharField(max_length=350, default='')
     description = models.CharField(max_length=5050, default='')
-    remarks = models.CharField(max_length=5050, default='')
+    remarks = models.TextField(default='')
     entry_point = models.CharField(max_length=5050, default='')  # Blogs or podcast
     entry_id = models.CharField(max_length=350, default='')  # Based on the above entry
     status = models.CharField(max_length=350, default='PENDING')  # PENDING, CONFIRMED, STARTED, COMPLETED

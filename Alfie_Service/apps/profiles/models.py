@@ -24,7 +24,7 @@ class DoctorsProfiles(models.Model):
     about = models.TextField(null=True)
 
     # Specialization
-    speciality = models.CharField(max_length=250, null=True)
+    speciality = models.CharField(max_length=250, default="Therapist")
     practice_duration = models.IntegerField(verbose_name='in months', default=0)
     registered_hospital = models.TextField(null=True)
     registration_code = models.CharField(max_length=50,  null=True)
