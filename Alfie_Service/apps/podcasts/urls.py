@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    PodcastsView, PodcastAllView, PodcastSpecificView, SearchPodcast)
+    PodcastsView, PodcastAllView, PodcastUserSpecific, SearchPodcast, PodcastSpecific)
 
 urlpatterns = [
     path('',
@@ -9,7 +9,12 @@ urlpatterns = [
          ),
 
     path('<user_id>',
-         PodcastSpecificView.as_view(),
+         PodcastUserSpecific.as_view(),
+         name="Podcast User Specific"
+         ),
+
+    path('pod/<pod_id>',
+         PodcastSpecific.as_view(),
          name="Podcast Specific"
          ),
 

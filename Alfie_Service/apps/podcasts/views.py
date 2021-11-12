@@ -99,7 +99,7 @@ class PodcastAllView(ListAPIView):
         return Podcasts.objects.filter().order_by('createdAt')
 
 
-class PodcastSpecificView(ListAPIView):
+class PodcastUserSpecific(ListAPIView):
     """Get a user specific podcasts"""
     permission_classes = [AllowAny]
     serializer_class = PodcastSerializer
@@ -107,6 +107,17 @@ class PodcastSpecificView(ListAPIView):
     def get_queryset(self):
         return Podcasts.objects.filter(
             user_id=self.kwargs['user_id']
+            ).order_by('createdAt')
+
+
+class PodcastSpecific(ListAPIView):
+    """Get a specific podcasts"""
+    permission_classes = [AllowAny]
+    serializer_class = PodcastSerializer
+
+    def get_queryset(self):
+        return Podcasts.objects.filter(
+            podcast_id=self.kwargs['pod_id']
             ).order_by('createdAt')
 
 
