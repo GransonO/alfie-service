@@ -11,6 +11,7 @@ class DoctorsProfiles(models.Model):
     user_id = models.CharField(max_length=350, default='non', unique=True)
     is_activated = models.BooleanField(default=False)
     activated_by = models.CharField(default="", max_length=350)  # Admin id
+    account_type = models.CharField(default="normal", max_length=350)  # Admin id
     # Requests
     fcm = models.TextField(null=True)
 
