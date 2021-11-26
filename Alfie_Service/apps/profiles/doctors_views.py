@@ -158,7 +158,6 @@ class DoctorValidation(views.APIView):
         result = mailjet.send.create(data=data)
         return result.status_code
 
-
 class ProfilesAllView(ListAPIView):
     """Get a user specific appointments"""
     permission_classes = [AllowAny]
